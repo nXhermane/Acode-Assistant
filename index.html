@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client WebSocket</title>
+</head>
+<body>
+    <input type="text" id="messageInput" placeholder="Entrez un message">
+    <button onclick="sendMessage()">Envoyer</button>
+    <div id="messages"></div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8080');
+
+        socket.onopen = function(e) {
+            console.log("[open] Connexion établie");
+        };
+
+        socket.onmessage = function(event) {
+            console.log(`[message] Données reçues du serveur: ${event.data}`);
+            addMessage(event.data);
+        };
+
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                console.log(`[close] Connexion fermée proprement, code=${event.code} raison=${event.reason}`);
+            } else {
+                console.log('[close] La connexion s\'est interrompue');
+            }
+        };
+
+        socket.onerror = function(error) {
+            console.log(`[error] ${error.message}`);
+        };
+
+        function sendMessage() {
+            const message = document.getElementById('messageInput').value;
+            socket.send(JSON.stringify({ event: 'message', data: message }));
+            document.getElementById('messageInput').value = '';
+        }
+
+        function addMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += '<p>' + message + '</p>';
+        }
+    </script>
+</body>
+</html>
